@@ -1,0 +1,52 @@
+<x-app-layout>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
+            {{ __('Plagiarism Checker') }}
+        </h2>
+    </x-slot>
+
+    <div class="py-12">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-6 text-gray-900 dark:text-gray-100">
+                    {{ __('Form Plagiarism Checker') }}
+                    <hr>
+                    <form action="{{ route('plagiarism-checker.store') }}" method="POST" enctype="multipart/form-data">
+                        @csrf
+
+                        <div class="mt-4">
+                            <x-input-label for="title" :value="__('Assignment Title')" required /> 
+                            <x-text-input id="title" class="block mt-1 w-full" type="text" name="title" :value="old('title')" required autofocus autocomplete="title" />
+                            <x-input-error :messages="$errors->get('title')" class="mt-2" />
+                        </div>
+
+                        <div class="mt-4">
+                            <x-input-label for="date" :value="__('Assignment Date')" required /> 
+                            <x-text-input id="date" class="block mt-1 w-full" type="date" name="date" :value="old('date')" required autofocus autocomplete="date" />
+                            <x-input-error :messages="$errors->get('date')" class="mt-2" />
+                        </div>
+
+                        <div class="mt-4">
+                            <x-input-label for="template_file" :value="__('Upload Template Assignment File')" /> 
+                            <x-text-input id="template_file" class="block mt-1 w-full" type="file" name="template_file" autofocus autocomplete="template_file" />
+                            <x-input-error :messages="$errors->get('template_file')" class="mt-2" />
+                        </div> 
+
+                        <div class="mt-4">
+                            <x-input-label for="files" :value="__('Upload Assignment Files')" required /> 
+                            <x-text-input id="files" class="block mt-1 w-full" type="file" name="files[]" multiple required autofocus autocomplete="files" />
+                            <x-input-error :messages="$errors->get('files')" class="mt-2" />
+                        </div> 
+
+                        <div class="flex items-center justify-end mt-4">
+                            <x-primary-button class="ml-4" style="background-color: #10b981 !important; border-color: #10b981 !important;">
+                                {{ __('Check Plagiarism') }}
+                            </x-primary-button>
+                        </div>
+                        
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</x-app-layout>
