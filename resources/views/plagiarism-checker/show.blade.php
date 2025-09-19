@@ -12,6 +12,7 @@
                     
                     @if(isset($results) && is_array($results) && count($results))
                     <div class="overflow-x-auto">
+                        Completed in {{ $executionTime }} s
                         <table class="min-w-full bg-white border border-gray-300">
                             <thead>
                                 <tr>
@@ -23,11 +24,6 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @php
-                                    usort($results, function($a, $b) {
-                                        return $b['similarity_score'] <=> $a['similarity_score'];
-                                    });
-                                @endphp
                                 @foreach($results as $result) 
                                     <tr>
                                         <td class="px-4 py-2 border">{{ $loop->iteration }}</td>

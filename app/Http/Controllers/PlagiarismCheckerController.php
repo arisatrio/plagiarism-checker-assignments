@@ -46,6 +46,8 @@ class PlagiarismCheckerController extends Controller
         // dd($images['668_0']->getContent());
 
         // dd($request->all());
+        // calculate time execution
+        
         $service = new PdfToTextService();
         $pre = new \App\Services\Preprocessing();
         $shingling = new \App\Services\Shingling();
@@ -57,22 +59,25 @@ class PlagiarismCheckerController extends Controller
 
         $assignmentFiles = $request->file('files');
 
+        $startTime = microtime(true);
+
         $shingleSets = [];
         foreach ($assignmentFiles as $key => $file) {
-            $text = $service->convert($file);
-
-            $processedText = $pre->process($text);
-            if($request->file('template_file')){
-                $templateText = $service->convert($request->file('template_file'));
-                $processedTemplateText = $pre->process($templateText);
-                // remove processed template text from processed text
-                $processedText = str_replace($processedTemplateText, '', $processedText);
-            }
-
-            $shingleSets[$key] = $shingling->getShingles($processedText, $shingleSize);
+            $fileHash = md5_file($file->getPathname());
+            $cacheKey = 'plagiarism_pipeline_' . $fileHash . '_' . $shingleSize;
+            $shingleSets[$key] = cache()->remember($cacheKey, 60 * 60 * 24, function() use ($service, $pre, $shingling, $file, $request, $shingleSize) {
+                $text = $service->convert($file);
+                $processedText = $pre->process($text);
+                if($request->file('template_file')){
+                    $templateFile = $request->file('template_file');
+                    $templateText = $service->convert($templateFile);
+                    $processedTemplateText = $pre->process($templateText);
+                    // remove processed template text from processed text
+                    $processedText = str_replace($processedTemplateText, '', $processedText);
+                }
+                return $shingling->getShingles($processedText, $shingleSize);
+            });
         }
-
-        // dd($shingleSets);
 
         $results = [];
 
@@ -91,7 +96,14 @@ class PlagiarismCheckerController extends Controller
             }
         }
 
-        return view('plagiarism-checker.show',[ 'results' => $results])
+        $endTime = microtime(true);
+        $executionTime = $endTime - $startTime;
+       
+
+        return view('plagiarism-checker.show',[ 
+                'results' => $results,
+                'executionTime' => $executionTime,
+            ])
             ->with('success', 'Assignments uploaded and processed successfully.');
     }
 
