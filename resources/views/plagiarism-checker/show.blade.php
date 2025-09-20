@@ -86,6 +86,7 @@
                         </a>
                         <a 
                             href="#"
+                            id="exportExcelBtn"
                             class="ml-4 inline-block px-4 py-2 rounded text-white font-semibold" style="background-color: #3b82f6 !important; border-color: #3b82f6 !important;">
                             Export to Excel
                         </a>
@@ -98,7 +99,11 @@
 
                     @if($results->count())
                     <div class="overflow-x-auto">
-                        <table class="min-w-full bg-white border border-gray-300">
+                        <!-- DataTables CSS -->
+                        <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+                        <!-- DataTables Buttons CSS -->
+                        <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+                        <table id="comparisonTable" class="min-w-full bg-white border border-gray-300">
                             <thead>
                                 <tr class="bg-gray-100 dark:bg-gray-700">
                                     <th class="px-4 py-2 border">No</th>
@@ -126,6 +131,59 @@
                             </tbody>
                         </table>
                     </div>
+                    <!-- jQuery, DataTables JS, and Buttons JS -->
+                    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+                    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+                    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+                    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+                    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+                    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+                    <script>
+                    $(document).ready(function() {
+                        var dt = $('#comparisonTable').DataTable({
+                            dom: 'fltip',
+                            buttons: []
+                        });
+                        // Wire up the custom Export to Excel button
+                        $('#exportExcelBtn').on('click', function(e) {
+                            e.preventDefault();
+                            // Get assignment title and date for filename
+                            var assignmentTitle = @json($summary->assignment_title);
+                            var assignmentDate = @json(\Carbon\Carbon::parse($summary->assignment_date)->format('Y-m-d'));
+                            var fileName = assignmentTitle + '_' + assignmentDate;
+                            // Temporarily add export button with custom filename
+                            dt.button().add(0, {
+                                extend: 'excelHtml5',
+                                filename: fileName,
+                                exportOptions: { columns: ':visible' }
+                            });
+                            dt.button(0).trigger();
+                            dt.button(0).remove();
+                        });
+                        // Style DataTables controls to match index view
+                        var $length = $('.dataTables_length');
+                        var $filter = $('.dataTables_filter');
+                        $length.addClass('mb-4');
+                        $filter.addClass('mb-4');
+                        $length.find('label').addClass('flex items-center gap-2 text-sm font-medium text-gray-700');
+                        $length.find('select').addClass('border rounded px-2 py-1 text-sm focus:ring focus:border-blue-300');
+                        $filter.find('label').addClass('flex items-center gap-2 text-sm font-medium text-gray-700 justify-end');
+                        $filter.find('input').addClass('border rounded px-2 py-1 text-sm focus:ring focus:border-blue-300');
+                        // Remove arrow toggle from select
+                        $length.find('select').css({'appearance': 'none', '-webkit-appearance': 'none', '-moz-appearance': 'none', 'background-image': 'none'});
+                        // Align controls: show entries left, search right
+                        setTimeout(function() {
+                            var $length = $('.dataTables_length');
+                            var $filter = $('.dataTables_filter');
+                            if ($length.length && $filter.length) {
+                                var $wrapper = $('<div class="flex items-center justify-between gap-4"></div>');
+                                $length.appendTo($wrapper);
+                                $filter.addClass('ml-auto').appendTo($wrapper);
+                                $('#comparisonTable').before($wrapper);
+                            }
+                        }, 0);
+                    });
+                    </script>
                     @else
                         <p>No results to display.</p>
                     @endif

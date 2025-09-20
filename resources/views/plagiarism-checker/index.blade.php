@@ -1,3 +1,13 @@
+                    <style>
+                    /* Hide the default select arrow for DataTables length dropdown */
+                    .dataTables_length select {
+                        appearance: none;
+                        -webkit-appearance: none;
+                        -moz-appearance: none;
+                        background: url('data:image/svg+xml;utf8,<svg fill="none" viewBox="0 0 24 24" stroke="gray" xmlns="http://www.w3.org/2000/svg"></svg>') no-repeat right center;
+                        padding-right: 1.5rem;
+                    }
+                    </style>
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
@@ -17,7 +27,9 @@
                         Check New Assignment
                     </a>
                     <div class="overflow-x-auto mt-4">
-                        <table class="min-w-full bg-white border border-gray-300 dark:bg-gray-800">
+                        <!-- DataTables CSS -->
+                        <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+                        <table id="resultsTable" class="min-w-full bg-white border border-gray-300 dark:bg-gray-800">
                             <thead>
                                 <tr class="bg-gray-100 dark:bg-gray-700">
                                     <th class="px-4 py-2 border">No</th>
@@ -59,6 +71,18 @@
                             </table>
                         </div>
                     </div>
+                    <!-- jQuery and DataTables JS -->
+                    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+                    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+                    <script>
+                    $(document).ready(function() {
+                        var table = $('#resultsTable').DataTable();
+                        // Add margin below DataTables controls
+                        // Add flex and gap for horizontal alignment
+                        var $dtControls = $('.dataTables_length, .dataTables_filter');
+                        $dtControls.wrapAll('<div class="flex items-center justify-between gap-4 mb-4"></div>');
+                    });
+                    </script>
                 </div>
             </div>
         </div>
