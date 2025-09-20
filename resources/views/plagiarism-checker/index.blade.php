@@ -64,7 +64,7 @@
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="8" class="px-4 py-2 text-center">No results found.</td>
+                                            <td class="px-4 py-2 text-center" colspan="8">No results found.</td>
                                         </tr>
                                     @endforelse
                                 </tbody>
@@ -75,6 +75,7 @@
                     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
                     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
                     <script>
+                    $.fn.dataTable.ext.errMode = 'none'; // Suppress DataTables error alerts
                     $(document).ready(function() {
                         var table = $('#resultsTable').DataTable();
                         // Add margin below DataTables controls
