@@ -83,8 +83,13 @@ class PlagiarismCheckerController extends Controller
 
         for ($i = 0; $i < $totalAssignments; $i++) {
             for ($j = $i + 1; $j < $totalAssignments; $j++) {
-                $similarity = $jaccard->calculateSimilarity($shingleSets[$i], $shingleSets[$j]);
-                $percentage = round($similarity * 100, 2);;
+                $fileHash1 = md5_file($assignmentFiles[$i]->getPathname());
+                $fileHash2 = md5_file($assignmentFiles[$j]->getPathname());
+                $pairKey = 'similarity_' . $fileHash1 . '_' . $fileHash2 . '_' . $shingleSize;
+                $similarity = cache()->remember($pairKey, 60 * 60 * 24, function() use ($jaccard, $shingleSets, $i, $j) {
+                    return $jaccard->calculateSimilarity($shingleSets[$i], $shingleSets[$j]);
+                });
+                $percentage = round($similarity * 100, 2);
 
                 // save to array results
                 $results[] = [
