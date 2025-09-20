@@ -40,15 +40,21 @@
                         </div> 
 
                         <div class="mt-4">
-                            <x-input-label for="shingles" :value="__('Shingles Size')" required /> 
+                            <div class="flex items-center gap-2">
+                                <x-input-label for="shingles" :value="__('Shingles Size')" required />
+                                <span class="text-xs text-gray-500">Used to split text into overlapping word groups for comparison. For example, 3-10 words per shingle. <br> Lower values make the checker more sensitive and may detect shorter matches, while higher values focus on longer, more significant similarities.</span>
+                            </div>
                             <x-text-input id="shingles_size" class="block mt-1 w-full" type="number" :value="5" name="shingles_size" required autofocus autocomplete="shingles_size" />
                             <x-input-error :messages="$errors->get('shingles_size')" class="mt-2" />
-                        </div> 
+                        </div>
                         <div class="mt-4">
-                            <x-input-label for="threshold" :value="__('Similiarity Threshold (%)')" required /> 
+                            <div class="flex items-center gap-2">
+                                <x-input-label for="threshold" :value="__('Similiarity Threshold (%)')" required />
+                                <span class="text-xs text-gray-500">If the similarity between documents meets or exceeds this percentage, it will be flagged as plagiarism. For example, 50%.</span>
+                            </div>
                             <x-text-input id="threshold" class="block mt-1 w-full" type="number" :value="50" name="threshold" required autofocus autocomplete="threshold" />
                             <x-input-error :messages="$errors->get('threshold')" class="mt-2" />
-                        </div> 
+                        </div>
 
                         <div class="flex items-center justify-end mt-4">
                             <x-primary-button class="ml-4" style="background-color: #10b981 !important; border-color: #10b981 !important;">
