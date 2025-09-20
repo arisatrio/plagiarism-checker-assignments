@@ -5,11 +5,12 @@
         </h2>
     </x-slot>
 
-    <div class="py-12">
+    <div class="py-4">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900 dark:text-gray-100">
-                    {{ __('Form Plagiarism Checker') }}
+                    <h3 class="font-semibold text-lg">{{ __('Form Plagiarism Checker Result') }}</h3>
+
                     <hr>
                     <form action="{{ route('plagiarism-checker.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
@@ -22,7 +23,7 @@
 
                         <div class="mt-4">
                             <x-input-label for="date" :value="__('Assignment Date')" required /> 
-                            <x-text-input id="date" class="block mt-1 w-full" type="date" name="date" :value="old('date')" required autofocus autocomplete="date" />
+                            <x-text-input id="date" class="block mt-1 w-full" type="date" name="date" :value="old('date') ?? now()->format('Y-m-d')" required autofocus autocomplete="date" />
                             <x-input-error :messages="$errors->get('date')" class="mt-2" />
                         </div>
 
@@ -36,6 +37,17 @@
                             <x-input-label for="files" :value="__('Upload Assignment Files')" required /> 
                             <x-text-input id="files" class="block mt-1 w-full" type="file" name="files[]" multiple required autofocus autocomplete="files" />
                             <x-input-error :messages="$errors->get('files')" class="mt-2" />
+                        </div> 
+
+                        <div class="mt-4">
+                            <x-input-label for="shingles" :value="__('Shingles Size')" required /> 
+                            <x-text-input id="shingles_size" class="block mt-1 w-full" type="number" :value="5" name="shingles_size" required autofocus autocomplete="shingles_size" />
+                            <x-input-error :messages="$errors->get('shingles_size')" class="mt-2" />
+                        </div> 
+                        <div class="mt-4">
+                            <x-input-label for="threshold" :value="__('Similiarity Threshold (%)')" required /> 
+                            <x-text-input id="threshold" class="block mt-1 w-full" type="number" :value="50" name="threshold" required autofocus autocomplete="threshold" />
+                            <x-input-error :messages="$errors->get('threshold')" class="mt-2" />
                         </div> 
 
                         <div class="flex items-center justify-end mt-4">

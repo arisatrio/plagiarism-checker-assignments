@@ -2,8 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\PdfToTextService;
-use Smalot\PdfParser\Parser;
+use App\Models\AssignmentCheckResultSummary;
 use Illuminate\Http\Request;
 
 class PlagiarismCheckerController extends Controller
@@ -13,8 +12,9 @@ class PlagiarismCheckerController extends Controller
      */
     public function index()
     {
-        //
-        return view('plagiarism-checker.index');
+        $summaries = AssignmentCheckResultSummary::orderByDesc('checked_at')->get();
+
+        return view('plagiarism-checker.index', compact('summaries'));
     }
 
     /**
@@ -38,77 +38,10 @@ class PlagiarismCheckerController extends Controller
             'files' => 'required',
         ]);
 
-        // $pdfParser = new Parser();
-        // $pdf = $pdfParser->parseFile($request->file('files')[0]);
-        // // $details = $pdf->getDetails(); // Includes author, title, etc.
-        // $images =  $pdf->getObjectsByType('XObject', 'Image');
-        // dd(exif_read_data($images['668_0']->getContent()));
-        // dd($images['668_0']->getContent());
+        $assignmentService = new \App\Services\AssignmentService();
+        $summary = $assignmentService->processAssignments($request);
 
-        // dd($request->all());
-        // calculate time execution
-        
-        $service = new PdfToTextService();
-        $pre = new \App\Services\Preprocessing();
-        $shingling = new \App\Services\Shingling();
-        $jaccard = new \App\Services\JaccardAlgorithm();
-
-        $totalAssignments = count($request->file('files'));
-
-        $shingleSize = 10;
-
-        $assignmentFiles = $request->file('files');
-
-        $startTime = microtime(true);
-
-        $shingleSets = [];
-        foreach ($assignmentFiles as $key => $file) {
-            $fileHash = md5_file($file->getPathname());
-            $cacheKey = 'plagiarism_pipeline_' . $fileHash . '_' . $shingleSize;
-            $shingleSets[$key] = cache()->remember($cacheKey, 60 * 60 * 24, function() use ($service, $pre, $shingling, $file, $request, $shingleSize) {
-                $text = $service->convert($file);
-                $processedText = $pre->process($text);
-                if($request->file('template_file')){
-                    $templateFile = $request->file('template_file');
-                    $templateText = $service->convert($templateFile);
-                    $processedTemplateText = $pre->process($templateText);
-                    // remove processed template text from processed text
-                    $processedText = str_replace($processedTemplateText, '', $processedText);
-                }
-                return $shingling->getShingles($processedText, $shingleSize);
-            });
-        }
-
-        $results = [];
-
-        for ($i = 0; $i < $totalAssignments; $i++) {
-            for ($j = $i + 1; $j < $totalAssignments; $j++) {
-                $fileHash1 = md5_file($assignmentFiles[$i]->getPathname());
-                $fileHash2 = md5_file($assignmentFiles[$j]->getPathname());
-                $pairKey = 'similarity_' . $fileHash1 . '_' . $fileHash2 . '_' . $shingleSize;
-                $similarity = cache()->remember($pairKey, 60 * 60 * 24, function() use ($jaccard, $shingleSets, $i, $j) {
-                    return $jaccard->calculateSimilarity($shingleSets[$i], $shingleSets[$j]);
-                });
-                $percentage = round($similarity * 100, 2);
-
-                // save to array results
-                $results[] = [
-                    'file1' => $assignmentFiles[$i]->getClientOriginalName(),
-                    'file2' => $assignmentFiles[$j]->getClientOriginalName(),
-                    'similarity' => $similarity,
-                    'similarity_score' => $percentage . '%',
-                ];
-            }
-        }
-
-        $endTime = microtime(true);
-        $executionTime = $endTime - $startTime;
-       
-
-        return view('plagiarism-checker.show',[ 
-                'results' => $results,
-                'executionTime' => $executionTime,
-            ])
+        return redirect()->route('plagiarism-checker.show', $summary->id)
             ->with('success', 'Assignments uploaded and processed successfully.');
     }
 
@@ -117,8 +50,10 @@ class PlagiarismCheckerController extends Controller
      */
     public function show(string $id)
     {
-        //
-        return view('plagiarism-checker.show');
+        $summary = AssignmentCheckResultSummary::findOrFail($id);
+        $results = $summary->details()->orderByDesc('similarity')->get();
+
+        return view('plagiarism-checker.show', compact('summary', 'results'));
     }
 
     /**
