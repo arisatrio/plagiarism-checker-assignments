@@ -1,15 +1,14 @@
-```mermaid
 flowchart LR
-    Start --> Upload Assignments
-    File Validation -->|Yes| Store File
-    File Validation -->|No| Upload Assigments
-    Store File --> Extract File
-    Extract File --> Preprocessing
-    Preprocessing --> Calculate Similiarity
-    Calculate Similiarity --> Store Results
-    Store Results --> Display Results
-    Above Threshold? -->|Yes| End
-    Above Threshold? -->|No| Label as Plagiarism
-    Label as Plagiarism --> END
-    End
-```
+    Start([Start]) --> Upload(Upload Assignments)
+    Upload --> Validation{File Validation?}
+    Validation -->|Yes| Store(Store File)
+    Validation -->|No| Upload
+    Store --> Extract(Extract File)
+    Extract --> Preprocess(Preprocessing)
+    Preprocess --> Calculate(Calculate Similiarity)
+    Calculate --> StoreResults(Store Results)
+    StoreResults --> Display(Display Results)
+    Display --> Threshold{Above Threshold?}
+    Threshold -->|Yes| Label(Label as Plagiarism)
+    Threshold -->|No| End([End - Acceptable])
+    Label --> End_Plagiarism([End - Plagiarism Detected])
