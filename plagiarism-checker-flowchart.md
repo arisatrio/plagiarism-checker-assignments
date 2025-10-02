@@ -17,9 +17,9 @@ graph TD
     J --> O[Store Results]
     O --> P[Display Results]
     P --> Q{Acceptable Score Threshold?}
-    Q -->|No| R[Mark as Plagiarism]
-    Q -->|Yes| S[Mark as Approved]
-    Y --> C
+    Q -->|No| Y[Mark as Plagiarism]
+    Q -->|Yes| Y[Mark as Approved]
+    Y --> [END]
     
     style A fill:#e1f5fe
     style G fill:#f3e5f5
