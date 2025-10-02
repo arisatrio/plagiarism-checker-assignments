@@ -12,24 +12,13 @@ graph TD
     F --> C
     E -->|Yes| G[Store File in Database]
     G --> H[Initialize Plagiarism Check]
-    H --> I[Text Extraction Service]
-    I --> J[Similarity Analysis]
-    J --> K[Compare with Database]
-    K --> L[Compare with External Sources]
-    L --> M[Calculate Similarity Score]
-    M --> N[Generate Report]
-    N --> O[Store Results]
-    O --> P[Display Results to User]
-    P --> Q{Acceptable Score?}
-    Q -->|No| R[Flag for Review]
+    H --> I[Preprocessing]
+    I --> J[Calculate Similarity]
+    J --> O[Store Results]
+    O --> P[Display Results]
+    P --> Q{Acceptable Score Threshold?}
+    Q -->|No| R[Mark as Plagiarism]
     Q -->|Yes| S[Mark as Approved]
-    R --> T[Notify Administrator]
-    S --> U[Assignment Submitted]
-    T --> V[Manual Review Process]
-    V --> W{Administrator Decision}
-    W -->|Reject| X[Notify Student]
-    W -->|Approve| S
-    X --> Y[Student Revision Required]
     Y --> C
     
     style A fill:#e1f5fe
